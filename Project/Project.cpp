@@ -16,7 +16,16 @@ static GLfloat yRot = 0.0f;
 static std::list<CObject*> object;
 static std::list<CObject*> light;
 static CObject *camera;
+int width = WINDOW_WIDTH, height = WINDOW_HEIGHT;
 
+double MainMenu;
+double SubMenu1, SubMenu2;
+int menu;
+
+void MyMenu()
+{
+	//SubMenu1 = glutCreateMenu
+}
 void SetupRC()
 {
 	// Light values
@@ -48,16 +57,23 @@ void SetupRC()
 void ChangeSize(int w, int h)
 {
 	GLfloat nRange = -300.0f;
+	width = w;
+	height = h;
 
 	glViewport(0, 0, w, h);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	if (w <= h) 
-		glOrtho (-nRange, nRange, -nRange*h/w, nRange*h/w, -nRange*2.0f, nRange*2.0f);               //add
-	else 
-		glOrtho (-nRange*w/h, nRange*w/h, -nRange, nRange, -nRange*2.0f, nRange*2.0f);  //add
+
+	// 왜 Ortho를 이렇게 설정하면 제대로 배치되는가??!?!?!?
+	glOrtho(width/2, -width/2, height/2, -height/2, -300.f, 300.f);
+
+
+// 	if (w <= h) 
+// 		glOrtho (-nRange, nRange, -nRange*h/w, nRange*h/w, -nRange*2.0f, nRange*2.0f);               //add
+// 	else 
+// 		glOrtho (-nRange*w/h, nRange*w/h, -nRange, nRange, -nRange*2.0f, nRange*2.0f);  //add
 
 	glMatrixMode(GL_MODELVIEW);
  	glLoadIdentity();
@@ -166,19 +182,6 @@ void TimerFunc(int value)
 	glutPostRedisplay();
 	glutTimerFunc(100, TimerFunc, 1);
 }
-void Init()
-{
-	CObject *temp = new CObject();
-	object.push_back(temp);
-
-	temp->SetAngle(5.f);
-	temp->SetRotate(0.f, 1.f, 0.f);
-	temp->SetPosition(100.f, 0.f, 0.f);
-	temp->SetShapeType(WIRE_TORUS);
-	temp->SetStartPosition(0.f, 0.f, 0.f);
-	temp->SetColor(0, 255, 0);
-	temp->SetSize(50.f);
-}
 GLvoid Mouse(int button, int state, int x, int y)
 {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
@@ -186,34 +189,46 @@ GLvoid Mouse(int button, int state, int x, int y)
 		srand((unsigned)time(NULL));
 		CObject *temp = new CObject();
 
-		//temp->SetAngle(0.01f * (rand()%900) + 1.f);
+		temp->SetAngle(0.01f * (rand()%900) + 1.f);
 		temp->SetColor(rand() % 256, rand() % 256, rand() % 256);
 		temp->SetStartPosition(0.f, 0.f, 0.f);
-		//temp->SetRotate(0.1f * (rand()%100), 0.1f * (rand()%100), 0.1f * (rand()%100));
+		temp->SetRotate(0.1f * (rand()%100), 0.1f * (rand()%100), 0.1f * (rand()%100));
 		temp->SetShapeType((ShapeType)(rand() % 4));
 		temp->SetSize(rand() % 20 + 10.f);
 		//temp->SetPosition(rand() % 200, rand() % 200, rand() % 200);
-		temp->SetPosition((GLfloat)x - WINDOW_WIDTH/4, (GLfloat)y - WINDOW_HEIGHT/4, 0.f);
+		temp->SetPosition((GLfloat)-x + width/2, (GLfloat)y - height/2, 0.f);
 
-		printf("%f %f\n", (GLfloat)x - WINDOW_WIDTH/4, (GLfloat)y - WINDOW_HEIGHT/4);
+		printf("[%d/%d] %f %f\n", width/2, height/2, (GLfloat)x, (GLfloat)y);
 
 		object.push_back(temp);
 	}
+}
+void t()
+{
+	
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 int _tmain(int argc, _TCHAR* argv[])
 {
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 	glutInitWindowPosition(0,0);
-	glutCreateWindow("Graphics Assignment #131018 kim-jihwan");
-
-	//Init();
+	int a = glutCreateWindow("Graphics Assignment #131018 kim-jihwan");
+	
 	glutReshapeFunc(ChangeSize);
 	glutTimerFunc(33,TimerFunc,1); //add 
 	glutSpecialFunc(ContorolKey);
 	glutMouseFunc(Mouse);
 	glutDisplayFunc(RenderScene);
 	SetupRC();
+
+ 	//glutCreateSubWindow(a, WINDOW_WIDTH - 100, 0, 100, WINDOW_HEIGHT);
+	glutCreateSubWindow(a, WINDOW_WIDTH/2 - 100, 0, 100, 400);
+ 	glutDisplayFunc(t);
+// 	glutTimerFunc(33, TimerFunc, 1);
+	//SetupRC();
+
 	glutMainLoop();
 
 	return 0;
