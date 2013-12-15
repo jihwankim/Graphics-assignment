@@ -38,6 +38,7 @@ void SetupRC()
 	glEnable(GL_LIGHT0);
 	//glLightModelfv(GL_LIGHT_MODEL_AMBIENT,ambientLight);
 
+
 	glEnable(GL_COLOR_MATERIAL);// Enable Material color tracking
 
 	// Front material ambient and diffuse colors track glColor
@@ -185,13 +186,16 @@ GLvoid Mouse(int button, int state, int x, int y)
 		srand((unsigned)time(NULL));
 		CObject *temp = new CObject();
 
-		temp->SetAngle(0.01f * (rand()%900) + 1.f);
+		//temp->SetAngle(0.01f * (rand()%900) + 1.f);
 		temp->SetColor(rand() % 256, rand() % 256, rand() % 256);
 		temp->SetStartPosition(0.f, 0.f, 0.f);
-		temp->SetRotate(0.1f * (rand()%100), 0.1f * (rand()%100), 0.1f * (rand()%100));
-		temp->SetShapeType((ShapeType)(rand() % 8));
+		//temp->SetRotate(0.1f * (rand()%100), 0.1f * (rand()%100), 0.1f * (rand()%100));
+		temp->SetShapeType((ShapeType)(rand() % 4));
 		temp->SetSize(rand() % 20 + 10.f);
-		temp->SetPosition(rand() % 200, rand() % 200, rand() % 200);
+		//temp->SetPosition(rand() % 200, rand() % 200, rand() % 200);
+		temp->SetPosition((GLfloat)x - WINDOW_WIDTH/4, (GLfloat)y - WINDOW_HEIGHT/4, 0.f);
+
+		printf("%f %f\n", (GLfloat)x - WINDOW_WIDTH/4, (GLfloat)y - WINDOW_HEIGHT/4);
 
 		object.push_back(temp);
 	}

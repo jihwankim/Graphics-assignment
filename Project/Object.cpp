@@ -10,7 +10,7 @@ CObject::~CObject()
 
 GLvoid CObject::render()
 {
-	void(__stdcall *Shape[8])(GLdouble)= { SolidSphere, SolidCube, SolidTeapot, SolidTorus, WireSphere, WireCube, WireTeapot, WireTorus};
+	void(__stdcall *Shape[8])(GLdouble) = { SolidSphere, WireSphere, SolidCube, WireCube, SolidTorus, WireTorus, SolidTeapot, WireTeapot };
 
 	glPushMatrix();
 	glTranslatef(mStartPosition.GetX(), mStartPosition.GetY(), mStartPosition.GetZ());

@@ -11,13 +11,13 @@ enum axis
 enum ShapeType
 {
 	SOLID_SPHERE = 0, 
-	SOLID_CUBE = 1, 
-	SOLID_TEAPOT = 2, 
-	SOLID_TORUS = 3, 
-	WIRE_SPHERE = 4, 
-	WIRE_CUBE = 5, 
-	WIRE_TEAPOT = 6, 
-	WIRE_TORUS = 7,
+	WIRE_SPHERE = 1,
+	SOLID_CUBE = 2, 
+	WIRE_CUBE = 3,
+	SOLID_TORUS = 4,
+	WIRE_TORUS = 5,
+	SOLID_TEAPOT = 6, 
+	WIRE_TEAPOT = 7,
 };
 
 class Object3DElement
