@@ -8,6 +8,13 @@
     <ClCompile Include="RenderFunction.cpp">
       <Filter>RenderFunction</Filter>
     </ClCompile>
+    <ClCompile Include="Project.cpp" />
+    <ClCompile Include="Camera.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="bmp.cpp">
+      <Filter>Sample</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -17,6 +24,12 @@
     </ClInclude>
     <ClInclude Include="RenderFunction.h">
       <Filter>RenderFunction</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="bmp.h">
+      <Filter>Sample</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -28,6 +41,9 @@
     </Filter>
     <Filter Include="RenderFunction">
       <UniqueIdentifier>{5a9366c5-71d6-4fd8-8e28-2f8374187973}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sample">
+      <UniqueIdentifier>{72b89aec-9763-49d8-a42d-305b7607f919}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -17,9 +17,10 @@ GLvoid CObject::render()
 
 	glRotatef(mNowAngle, mRotate.GetX(), mRotate.GetY(), mRotate.GetZ());
 	glTranslatef(mPosition.GetX(), mPosition.GetY(), mPosition.GetZ());
+
 	glColor3ub(mColor.GetX(), mColor.GetY(), mColor.GetZ());
 	Shape[mShapeType](mSize);
-
+	
 	mNowAngle += mAngle;
 
 	if (mNowAngle >= 360.f)

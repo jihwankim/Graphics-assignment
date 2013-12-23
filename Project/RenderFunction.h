@@ -1,7 +1,7 @@
 #include <gl/glut.h>
 
 #define SLICES 30
-#define STACKS 17
+#define STACKS 30
 
 void __stdcall SolidSphere(GLdouble radius);
 void __stdcall SolidCube(GLdouble size);

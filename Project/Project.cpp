@@ -4,27 +4,73 @@
 #include "stdafx.h"
 #include <windows.h>
 #include <gl/glut.h>
-#include "Object.h"
 #include <list>
 #include <time.h>
-#define GL_PI 3.1415f
+#include <math.h>
+#include "Object.h"
+#include "Camera.h"
+#include<iostream>
+#define GL_PI 3.14159f
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 800
+#define UPDATE_RATE 0.05
 
-static GLfloat xRot = 0.0f;
-static GLfloat yRot = 0.0f;
 static std::list<CObject*> object;
 static std::list<CObject*> light;
-static CObject *camera;
+static CCamera *camera;
 int width = WINDOW_WIDTH, height = WINDOW_HEIGHT;
+GLfloat nRange = 100.f;
+
+ShapeType SelectedShapeType = ShapeType::SOLID_CUBE;
 
 double MainMenu;
 double SubMenu1, SubMenu2;
 int menu;
 
-void MyMenu()
+void MenuFunc(int button)
 {
-	//SubMenu1 = glutCreateMenu
+	SelectedShapeType = (ShapeType)button;
+
+	return;
+
+	switch (button)
+	{
+	case 1:
+		menu = 1;
+		break;
+	case 2:
+		menu = 2;
+		break;
+	case 3:
+		menu = 3;
+		break;
+	case 4:
+		menu = 4;
+		break;
+	}
+
+	glutPostRedisplay();
+}
+void SubMenu()
+{
+	SubMenu1 = glutCreateMenu(MenuFunc);
+	glutAddMenuEntry("Sphere", 0);
+	glutAddMenuEntry("Cube", 2);
+	glutAddMenuEntry("Torus", 4);
+	glutAddMenuEntry("Teapot", 6);
+
+	SubMenu2 = glutCreateMenu(MenuFunc);
+	glutAddMenuEntry("Sphere", 1);
+	glutAddMenuEntry("Cube", 3);
+	glutAddMenuEntry("Torus", 5);
+	glutAddMenuEntry("Teapot", 7);
+
+	MainMenu = glutCreateMenu(MenuFunc);
+	glutAddSubMenu("Solid Object", SubMenu1);
+	glutAddSubMenu("Wire Object", SubMenu2);
+
+	//glutAttachMenu(GLUT_RIGHT_BUTTON);
+
 }
 void SetupRC()
 {
@@ -54,9 +100,9 @@ void SetupRC()
 	glColorMaterial(GL_FRONT,GL_AMBIENT_AND_DIFFUSE);
 	glClearColor(0.0f, 0.0f, 0.0f,1.0f);
 }
+Object3DElement eye;
 void ChangeSize(int w, int h)
 {
-	GLfloat nRange = -300.0f;
 	width = w;
 	height = h;
 
@@ -65,9 +111,12 @@ void ChangeSize(int w, int h)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
+	GLfloat fAspect = (GLfloat)width / (GLfloat)height;
+	gluPerspective(60.0f, fAspect, 1.0f, nRange*2);
+	gluLookAt(0.f, 0.f, -nRange, 0.f, 0.f, 0.f, 0, 1, 0);
 
 	// 왜 Ortho를 이렇게 설정하면 제대로 배치되는가??!?!?!?
-	glOrtho(width/2, -width/2, height/2, -height/2, -300.f, 300.f);
+	//glOrtho(-width/2, width/2, height/2, -height/2, -300.f, 300.f);
 
 
 // 	if (w <= h) 
@@ -88,99 +137,107 @@ void RenderScene(void)
 		(*iter).render();
 
 	glutSwapBuffers();
-	/*
-	// Earth and Moon angle of revolution
-	static float fMoonRot = 0.0f;
-	static float fEarthRot = 0.0f;
-	static float fMarsRot = 0.0f;
-	static float fJupiterRot = 0.0f;
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glPushMatrix(); // 초기 메트릭스 저장
-
-	//시점을 뒤로 300만큼 이동해서 관측 시점 지정
-	glTranslatef(0.0f, 0.0f, -300.0f);	
-	//태양을 그린다
-	glColor3ub(255, 255, 0);
-	glutSolidCube(15.f);
-	//glutSolidSphere(15.0f, 30, 17);
-
-	// 지구
-	//y축으로 일정하게 증가해서 회전하는 좌표계를 세팅
-	glRotatef(fEarthRot, 0.0f, 1.0f, 0.0f);
-
-	glTranslatef(105.0f,0.0f,0.0f); // x 방향으로 105만큼 평행이동
-	//glTranslatef(300.0f, 100.0f, 100.0f); // x 방향으로 105만큼 평행이동
-	glColor3ub(0,0,255); 	 // 지구를 그린다
-	glutSolidSphere(15.0f, 30, 17);
-
-	// 달
-	glRotatef(fMoonRot, 0.0f,1.0f,0.0f);
-	glTranslatef(25.0f,0.0f,0.0f);
-	glColor3ub (255,255,255);
-	glutSolidSphere(8.0f,30,17);
-
-	glPopMatrix();
-	fMoonRot+= 15.0f;
-
-	// 화성
-	glPushMatrix();
-	glTranslatef(0.0f, 0.0f, -300.0f);	
-
-	glRotatef(fMarsRot, 0.0f,1.0f,0.0f);
-	glTranslatef(200.0f,0.0f,0.0f);
-	glColor3ub (255,0,0);
-	glutSolidSphere(13.0f,30,17);
-
-	glPopMatrix();
-	fMarsRot+= 4.0f;
-
-	// 목성
-	glPushMatrix();
-	glTranslatef(0.0f, 0.0f, -350.0f);	
-
-	glRotatef(fJupiterRot, 0.0f,1.0f,0.0f);
-	glTranslatef(250.0f,0.0f,0.0f);
-	glColor3ub (0,255,0);
-	//glutSolidSphere(30.0f,30,17);
-	//glutSolidCone(20.0f, 50.f, 30, 17);
-
-	//glutSolidCube(50.f);
-
-	glPopMatrix();
-	fJupiterRot+= 3.0f;
-
-	// Step earth orbit 5 degrees
-	fEarthRot += 5.0f;
-	if(fEarthRot > 360.0f)
-		fEarthRot = 0.0f;
-
-	
-
-	glutSwapBuffers();
-	*/
 }
 void ContorolKey(int key, int x, int y)
 {
-	if(key == GLUT_KEY_UP)
-		xRot -=5.0f;
-
-	if(key == GLUT_KEY_DOWN)
-		xRot +=5.0f;
-
-	if(key == GLUT_KEY_LEFT)
-		yRot -=5.0f;
-
-	if(key == GLUT_KEY_RIGHT)
-		yRot +=5.0f;
-
+// 	if (key == GLUT_KEY_UP)
+// 		//eye.SetY(eye.GetY() + 5.f);
+// 		glRotated(5.f, 0.0, 1.0, 0.0);
+// 
+// 	if (key == GLUT_KEY_DOWN)
+// 		//eye.SetY(eye.GetY() - 5.f);
+// 		glRotated(5.f, 0.0, -1.0, 0.0);
+// 
+// 	if (key == GLUT_KEY_LEFT)
+// 		//eye.SetX(eye.GetX() - 5.f);
+// 		glRotated(5.f, -1.0, 0.0, 0.0);
+// 
+// 	if (key == GLUT_KEY_RIGHT)
+// 		//eye.SetX(eye.GetX() + 5.f);
+// 		glRotated(5.f, 1.0, 0.0, 0.0);
+// 
+// 	//printf("%f %f %f\n", eye.GetX(), eye.GetY(), eye.GetZ());
 	glutPostRedisplay();
 }
 void TimerFunc(int value)
 {
 	glutPostRedisplay();
-	glutTimerFunc(100, TimerFunc, 1);
+	glutTimerFunc(UPDATE_RATE * 1000, TimerFunc, 1);
+}
+CObject *SelectedObject = nullptr;
+
+void Draw(GLenum eMode)
+{
+	//if (eMode == GL_SELECT)
+}
+/*
+#define SELECT_BUF_SIZE 512
+void Picking(int x, int y)
+{
+	static unsigned int aSelectBuffer[SELECT_BUF_SIZE];
+	static unsigned int uiHits;
+	static int aViewport[4];
+
+	glGetIntegerv(GL_VIEWPORT, aViewport);
+
+	glSelectBuffer(SELECT_BUF_SIZE, aSelectBuffer);
+	glRenderMode(GL_SELECT);
+
+	glInitNames();
+	glPushName(0);
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+
+	// 5x5 Region
+	gluPickMatrix((double)x, (double)(aViewport[3] - y), 5.0, 5.0, aViewport);
+
+	// Same Clipping Window as in Reshape()
+	//glOrtho(-1.15, 1.15, -1.15, 1.15, -5, 5);
+	//gluPerspective(60.0, (GLfloat)width / (GLfloat)height, 1.0, 5.0);
+	//gluLookAt(0, 0, 3, 0, 0, 0, 0, 1, 0);
+
+	GLfloat fAspect = (GLfloat)width / (GLfloat)height;
+	gluPerspective(60.0f, fAspect, 1.0f, nRange*2);
+	gluLookAt(0.f, 0.f, -nRange, 0.f, 0.f, 0.f, 0, 1, 0);
+
+	glMatrixMode(GL_MODELVIEW);
+	//glPushMatrix();
+	//glTranslated(0.5, 0, 0);
+	// Draw!
+	Draw(GL_SELECT);
+	//glPopMatrix();
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
+	uiHits = glRenderMode(GL_RENDER);
+	ProcessHits(uiHits, aSelectBuffer);
+
+	glMatrixMode(GL_MODELVIEW);
+
+	glutPostRedisplay();
+}*/
+Object3DElement Picking(int x, int y)
+{
+	GLint viewport[4];
+	GLdouble modelview[16];
+	GLdouble projection[16];
+	GLfloat winX, winY, winZ;
+	GLdouble posX, posY, posZ;
+
+	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+	glGetDoublev(GL_PROJECTION_MATRIX, projection);
+	glGetIntegerv(GL_VIEWPORT, viewport);
+
+	winX = (float)x;
+	winY = (float)viewport[3] - (float)y;
+	glReadPixels(x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
+
+	gluUnProject(winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
+
+	return Object3DElement(posX, posY, posZ);
 }
 GLvoid Mouse(int button, int state, int x, int y)
 {
@@ -189,23 +246,33 @@ GLvoid Mouse(int button, int state, int x, int y)
 		srand((unsigned)time(NULL));
 		CObject *temp = new CObject();
 
-		temp->SetAngle(0.01f * (rand()%900) + 1.f);
+		//temp->SetAngle(0.01f * (rand()%900) + 1.f * UPDATE_RATE);
 		temp->SetColor(rand() % 256, rand() % 256, rand() % 256);
 		temp->SetStartPosition(0.f, 0.f, 0.f);
-		temp->SetRotate(0.1f * (rand()%100), 0.1f * (rand()%100), 0.1f * (rand()%100));
-		temp->SetShapeType((ShapeType)(rand() % 4));
-		temp->SetSize(rand() % 20 + 10.f);
-		//temp->SetPosition(rand() % 200, rand() % 200, rand() % 200);
-		temp->SetPosition((GLfloat)-x + width/2, (GLfloat)y - height/2, 0.f);
 
-		printf("[%d/%d] %f %f\n", width/2, height/2, (GLfloat)x, (GLfloat)y);
+		//temp->SetPosition((GLfloat)x - width / 2, (GLfloat)y - height / 2, 0.f);
+
+		Object3DElement ttt = Picking(x, y);
+		temp->SetPosition(ttt.GetX(), ttt.GetY(), ttt.GetZ());
+
+		//temp->SetRotate(0.1f * (rand() % 100) * UPDATE_RATE, 0.1f * (rand() % 100) * UPDATE_RATE, 0.1f * (rand() % 100) * UPDATE_RATE);
+		//temp->SetShapeType((ShapeType)(rand() % 4));
+		temp->SetShapeType(SelectedShapeType);
+		temp->SetSize(rand() % 20 + 10.f);
+
+		printf("Object Click : %d/%d\n", x, y);
+		printf("World Click  : %f/%f/%f\n", ttt.GetX(), ttt.GetY(),ttt.GetZ());
 
 		object.push_back(temp);
+	}else if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
+	{
+		Object3DElement ttt = Picking(x, y);
+		printf("Image Click  : %f/%f/%f\n", ttt.GetX(), ttt.GetY(), ttt.GetZ());
 	}
+	glutPostRedisplay();
 }
 void t()
 {
-	
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -215,7 +282,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	glutInitWindowSize(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 	glutInitWindowPosition(0,0);
 	int a = glutCreateWindow("Graphics Assignment #131018 kim-jihwan");
-	
+
 	glutReshapeFunc(ChangeSize);
 	glutTimerFunc(33,TimerFunc,1); //add 
 	glutSpecialFunc(ContorolKey);
@@ -223,12 +290,13 @@ int _tmain(int argc, _TCHAR* argv[])
 	glutDisplayFunc(RenderScene);
 	SetupRC();
 
- 	//glutCreateSubWindow(a, WINDOW_WIDTH - 100, 0, 100, WINDOW_HEIGHT);
-	glutCreateSubWindow(a, WINDOW_WIDTH/2 - 100, 0, 100, 400);
- 	glutDisplayFunc(t);
-// 	glutTimerFunc(33, TimerFunc, 1);
+
+	//glutCreateSubWindow(a, WINDOW_WIDTH/2 - 100, 0, 100, 400);
+ 	//glutDisplayFunc(t);
+ 	//glutTimerFunc(33, TimerFunc, 1);
 	//SetupRC();
 
+	SubMenu();
 	glutMainLoop();
 
 	return 0;
