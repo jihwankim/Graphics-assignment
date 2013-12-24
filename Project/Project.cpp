@@ -24,6 +24,7 @@ static std::list<CObject*> light;
 Object3DElement camera;
 int width = WINDOW_WIDTH, height = WINDOW_HEIGHT;
 GLfloat nRange = 200.f;
+GLfloat minimumZ = 0.f;
 
 ShapeType SelectedShapeType = ShapeType::SOLID_CUBE;
 int ObjectCount = 0;
@@ -32,6 +33,31 @@ double MainMenu;
 double SubMenu1, SubMenu2;
 int menu;
 
+GLfloat GetWinZ()
+{
+	GLfloat front = 0.f;
+	GLfloat sub = 0.000001f;
+	GLint viewport[4];
+	GLdouble modelview[16];
+	GLdouble projection[16];
+	GLdouble posX, posY, posZ = nRange;
+	GLfloat result;
+
+	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+	glGetDoublev(GL_PROJECTION_MATRIX, projection);
+	glGetIntegerv(GL_VIEWPORT, viewport);
+
+	glReadPixels(width/2, height/2, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &result);
+
+	while (posZ >= front)
+	{
+		gluUnProject(width/2, height/2, result, modelview, projection, viewport, &posX, &posY, &posZ);
+		result -= sub;
+	}
+
+	result += sub;
+	return 1.f - result;
+}
 void MenuFunc(int button)
 {
 	SelectedShapeType = (ShapeType)button;
@@ -141,14 +167,11 @@ void Draw(GLenum eMode)
 }
 void RenderScene(void)
 {
-	static float A = 0.f;
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-//	glRotatef(90, camera.GetX(), camera.GetY(), camera.GetZ());
-	//A += 5.f;
+	if (minimumZ == 0.f) minimumZ = GetWinZ();
 
 	Draw(GL_RENDER);
 
@@ -206,17 +229,12 @@ void SelectObject(int x, int y)
 	gluPickMatrix((double)x, (double)(aViewport[3] - y), 5.0, 5.0, aViewport);
 
 	// Same Clipping Window as in Reshape()
-	//glOrtho(-1.15, 1.15, -1.15, 1.15, -5, 5);
 	GLfloat fAspect = (GLfloat)width / (GLfloat)height;
 	gluPerspective(60.0f, fAspect, 1.0f, nRange * 2);
 	gluLookAt(0.f, 0.f, -nRange, 0.f, 0.f, 0.f, 0, 1, 0);
 
 	glMatrixMode(GL_MODELVIEW);
-	//glPushMatrix();
-	//glTranslated(0.5, 0, 0);
-	// Draw!
 	Draw(GL_SELECT);
-	//glPopMatrix();
 
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
@@ -228,88 +246,14 @@ void SelectObject(int x, int y)
 
 	glutPostRedisplay();
 }
-
-/*
-void ProcessHits(unsigned int uiHits, unsigned int *pBuffer)
-{
-	static unsigned int i, j;
-	static unsigned int uiName, *ptr;
-
-	ptr = pBuffer;
-	for (i = 0; i < uiHits; i++)          // for each hit
-	{
-		uiName = *ptr;
-		ptr += 3;
-
-		for (j = 0; j < uiName; j++)      // for each name
-		{
-			switch (*ptr)
-			{
-			case TRIANGLE:
-				g_nSelectedObject = TRIANGLE;
-
-				printf("[ Triangle ]\n");
-				break;
-
-			case QUAD:
-				g_nSelectedObject = QUAD;
-
-				printf("[ Quad ]\n");
-				break;
-
-			case SEPARATOR:
-				printf("--- Separator ---\n");
-				break;
-
-			case CLR_RED:
-				g_nObjectColor[g_nSelectedObject - TRIANGLE] = CLR_RED;
-
-				printf("< Red >\n");
-				break;
-
-			case CLR_GREEN:
-				g_nObjectColor[g_nSelectedObject - TRIANGLE] = CLR_GREEN;
-
-				printf("< Green >\n");
-				break;
-
-			case CLR_BLUE:
-				g_nObjectColor[g_nSelectedObject - TRIANGLE] = CLR_BLUE;
-
-				printf("< Blue >\n");
-				break;
-
-			case CLR_YELLOW:
-				g_nObjectColor[g_nSelectedObject - TRIANGLE] = CLR_YELLOW;
-
-				printf("< Yellow >\n");
-				break;
-
-			case CLR_MAGENTA:
-				g_nObjectColor[g_nSelectedObject - TRIANGLE] = CLR_MAGENTA;
-
-				printf("< Magenta >\n");
-				break;
-
-			case CLR_CYAN:
-				g_nObjectColor[g_nSelectedObject - TRIANGLE] = CLR_CYAN;
-
-				printf("< Cyan >\n");
-				break;
-			}
-
-			ptr++;
-		}
-	}
-}
-*/
-PositionState Picking(int x, int y, Object3DElement *result)
+PositionState objectAllocate(int x, int y, Object3DElement *result)
 {
 	GLint viewport[4];
 	GLdouble modelview[16];
 	GLdouble projection[16];
 	GLfloat winX, winY, winZ;
-	GLdouble posX, posY, posZ;
+	GLdouble posX, posY, posZ = 100.f;
+	bool isEmpty = false;
 
 	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
 	glGetDoublev(GL_PROJECTION_MATRIX, projection);
@@ -317,34 +261,33 @@ PositionState Picking(int x, int y, Object3DElement *result)
 
 	winX = (float)x;
 	winY = (float)viewport[3] - (float)y;
-	glReadPixels(x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
 
-	std::cout << winZ << std::endl;
-	std::cout << gluUnProject(winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ) << std::endl;
+	glReadPixels(x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
+	if (winZ == 1.0f)
+		isEmpty = true;
+
+	winZ -= (rand() % (int)(minimumZ * 100000)) / 100000.f;
+	gluUnProject(winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
 
 	result->SetPosition(posX, posY, posZ);
 
-	if (winZ == 1.0f) // is Empty
+	if (isEmpty) // is Empty
 		return EMPTY;
 	return FULL;
-	//posZ = 200.f;
-	//printf("ERROR\n");
-
-	//return Object3DElement(posX, posY, posZ);
 }
 GLvoid Mouse(int button, int state, int x, int y)
 {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
 		Object3DElement pos;
-		switch (Picking(x,y, &pos))
+		switch (objectAllocate(x, y, &pos))
 		{
 		case EMPTY:
 		{
 					  CObject *temp = new CObject(ObjectCount++);
 					  srand((unsigned)time(NULL));
 
-					  //temp->SetAngle(0.01f * (rand() % 900));
+					  temp->SetAngle(0.01f * (rand() % 900));
 					  temp->SetColor(rand() % 256, rand() % 256, rand() % 256);
 					  
 					  temp->SetStartPosition(0.f, 0.f, 0.f);
@@ -352,7 +295,7 @@ GLvoid Mouse(int button, int state, int x, int y)
 
 					  temp->SetPosition(pos.GetX(), pos.GetY(), pos.GetZ());
 
-					  //temp->SetRotate(0.1f * (rand() % 100) * UPDATE_RATE, 0.1f * (rand() % 100) * UPDATE_RATE, 0.1f * (rand() % 100) * UPDATE_RATE);
+					  temp->SetRotate(0.1f * (rand() % 100) * UPDATE_RATE, 0.1f * (rand() % 100) * UPDATE_RATE, 0.1f * (rand() % 100) * UPDATE_RATE);
 					  //temp->SetShapeType((ShapeType)(rand() % 4));
 					  temp->SetShapeType(SelectedShapeType);
 					  temp->SetSize(rand() % 20 + 10.f);
@@ -397,6 +340,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	SubMenu();
 	glutMainLoop();
+	
 
 	return 0;
 }
