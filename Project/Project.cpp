@@ -37,6 +37,8 @@ GLuint texID[TEXTURE_COUNT];
 
 CObject *SelectedObject = nullptr;
 
+bool stop = false;
+
 double MainMenu;
 double SubMenu1, SubMenu2;
 int menu;
@@ -188,9 +190,8 @@ void Draw(GLenum eMode)
 	{
 		if (eMode == GL_SELECT) glLoadName((*iter).GetObjectNum());
 
-		(*iter).render();
+		(*iter).render(stop);
 	}
-	DrawStatus();
 }
 void renderString(float x, float y, void *font, const char *string)
 {
@@ -204,18 +205,14 @@ void renderString(float x, float y, void *font, const char *string)
 void DrawStatus()
 {
 	glLoadIdentity();
-	//glPushMatrix();
+	glPushMatrix();
 	
 
 	//glColor3f(255.f, 255.f, 255.f);
 	char temp[256];
 
 	sprintf(temp, "Total Object : %d", ObjectCount);
-	renderString(-50.f, -90.f, GLUT_BITMAP_8_BY_13, temp);
-
-	if (SelectedObject != nullptr) sprintf(temp, "Selected Object ID : %d",SelectedObject->GetObjectNum());
-	else sprintf(temp, "Selected Object : NULL");
-	renderString(-50.f, -100.f, GLUT_BITMAP_8_BY_13, temp);
+	renderString(-50.f, 110.f, GLUT_BITMAP_8_BY_13, temp);
 
 	sprintf(temp, "Selected Shape : ");
 	if (SelectedShapeType == SOLID_CUBE) strcat(temp, "SOLID_CUBE");
@@ -226,9 +223,75 @@ void DrawStatus()
 	else if (SelectedShapeType == WIRE_TORUS) strcat(temp, "WIRE_TORUS");
 	else if (SelectedShapeType == SOLID_TEAPOT) strcat(temp, "SOLID_TEAPOT");
 	else if (SelectedShapeType == WIRE_TEAPOT) strcat(temp, "WIRE_TEAPOT");
+	renderString(-50.f, 100.f, GLUT_BITMAP_8_BY_13, temp);
 
-	renderString(-50.f, -110.f, GLUT_BITMAP_8_BY_13, temp);
+	if (SelectedObject != nullptr)
+	{
+		sprintf(temp, "[Selected Object ID : %d]", SelectedObject->GetObjectNum());
+		renderString(-50.f, 80.f, GLUT_BITMAP_8_BY_13, temp);
 
+		sprintf(temp, "Angle : %f", SelectedObject->GetAngle());
+		renderString(-50.f, 70.f, GLUT_BITMAP_8_BY_13, temp);
+
+		sprintf(temp, "Color : (%0.f,%0.f,%0.f)", SelectedObject->GetColor().GetX(), SelectedObject->GetColor().GetY(), SelectedObject->GetColor().GetZ());
+		renderString(-50.f, 60.f, GLUT_BITMAP_8_BY_13, temp);
+
+		sprintf(temp, "Shape Type : ");
+		if (SelectedObject->GetShapeType() == SOLID_CUBE) strcat(temp, "SOLID_CUBE");
+		else if (SelectedObject->GetShapeType() == WIRE_CUBE) strcat(temp, "WIRE_CUBE");
+		else if (SelectedObject->GetShapeType() == SOLID_SPHERE) strcat(temp, "SOLID_SPHERE");
+		else if (SelectedObject->GetShapeType() == WIRE_SPHERE) strcat(temp, "WIRE_SPHERE");
+		else if (SelectedObject->GetShapeType() == SOLID_TORUS) strcat(temp, "SOLID_TORUS");
+		else if (SelectedObject->GetShapeType() == WIRE_TORUS) strcat(temp, "WIRE_TORUS");
+		else if (SelectedObject->GetShapeType() == SOLID_TEAPOT) strcat(temp, "SOLID_TEAPOT");
+		else if (SelectedObject->GetShapeType() == WIRE_TEAPOT) strcat(temp, "WIRE_TEAPOT");
+		renderString(-50.f, 50.f, GLUT_BITMAP_8_BY_13, temp);
+
+		sprintf(temp, "Size : %f", SelectedObject->GetSize());
+		renderString(-50.f, 40.f, GLUT_BITMAP_8_BY_13, temp);
+
+		sprintf(temp, "Position");
+		renderString(-50.f, 30.f, GLUT_BITMAP_8_BY_13, temp);
+		sprintf(temp, "X: %f", - SelectedObject->GetMatrix()[12]);
+		renderString(-60.f, 20.f, GLUT_BITMAP_8_BY_13, temp);
+		sprintf(temp, "Y: %f", SelectedObject->GetMatrix()[13]);
+		renderString(-60.f, 10.f, GLUT_BITMAP_8_BY_13, temp);
+		sprintf(temp, "Z: %f", SelectedObject->GetMatrix()[14]);
+		renderString(-60.f, 0.f, GLUT_BITMAP_8_BY_13, temp);
+
+// 		sprintf(temp, "Rotate Speed ");
+//  		renderString(-50.f, 30.f, GLUT_BITMAP_8_BY_13, temp);
+// 		sprintf(temp, "X: %f", SelectedObject->GetRotate().GetX());
+// 		renderString(-60.f, 20.f, GLUT_BITMAP_8_BY_13, temp);
+// 		sprintf(temp, "Y: %f", SelectedObject->GetRotate().GetY());
+// 		renderString(-60.f, 10.f, GLUT_BITMAP_8_BY_13, temp);
+// 		sprintf(temp, "Z: %f", SelectedObject->GetRotate().GetZ());
+// 		renderString(-60.f, 0.f, GLUT_BITMAP_8_BY_13, temp);
+	}
+	else
+	{
+		sprintf(temp, "Selected Object : NULL");
+		renderString(-50.f, 80.f, GLUT_BITMAP_8_BY_13, temp);
+	}
+
+	sprintf(temp, "HOME : Stop");
+	renderString(-100.f, -60.f, GLUT_BITMAP_8_BY_13, temp);
+	sprintf(temp, "LEFT CLICK");
+	renderString(-100.f, -70.f, GLUT_BITMAP_8_BY_13, temp);
+	sprintf(temp, ": Create Object");
+	renderString(-110.f, -80.f, GLUT_BITMAP_8_BY_13, temp);
+	sprintf(temp, ": Select Object");
+	renderString(-110.f, -90.f, GLUT_BITMAP_8_BY_13, temp);
+	sprintf(temp, "RIGHT CLICK");
+	renderString(-100.f, -100.f, GLUT_BITMAP_8_BY_13, temp);
+	sprintf(temp, ": Select Shape");
+	renderString(-110.f, -110.f, GLUT_BITMAP_8_BY_13, temp);
+	// 
+	// 		sprintf(temp, "Angle : %f", SelectedObject->GetAngle());
+	// 		renderString(-50.f, 10.f, GLUT_BITMAP_8_BY_13, temp);
+	// 
+	// 		sprintf(temp, "Angle : %f", SelectedObject->GetAngle());
+	// 		renderString(-50.f, 0.f, GLUT_BITMAP_8_BY_13, temp);
 	//glPopMatrix();
 }
 void RenderScene(void)
@@ -240,6 +303,8 @@ void RenderScene(void)
 	if (minimumZ == 0.f) minimumZ = GetWinZ();
 
 	Draw(GL_RENDER);
+
+	DrawStatus();
 
 	glutSwapBuffers();
 }
@@ -256,6 +321,9 @@ void ContorolKey(int key, int x, int y)
 
 	if (key == GLUT_KEY_RIGHT)
 		camera.SetX(camera.GetX() + 5.f);
+
+	if (key == GLUT_KEY_HOME) // SPACE BAR
+		stop = !stop;
 
 	//printf("%f %f %f\n", eye.GetX(), eye.GetY(), eye.GetZ());
 	glutPostRedisplay();
@@ -378,12 +446,12 @@ GLvoid Mouse(int button, int state, int x, int y)
 		}
 					  break;
 		case FULL :
-			//SelectObject(x, y);
+			SelectObject(x, y);
 			break;
 		}
-		SelectObject(x, y);
+		//SelectObject(x, y);
 	}
-	glutPostRedisplay();
+	//glutPostRedisplay();
 }
 void t()
 {

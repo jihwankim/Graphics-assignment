@@ -9,11 +9,14 @@ CObject::~CObject()
 {
 }
 
-GLvoid CObject::render()
+GLvoid CObject::render(bool stop)
 {
 	glPushMatrix();
+	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_TEXTURE_GEN_S); //enable texture coordinate generation
 	glEnable(GL_TEXTURE_GEN_T);
+	//glEnable(GL_TEXTURE_GEN_R);
+	//glEnable(GL_TEXTURE_GEN_Q);
 
 	glBindTexture(GL_TEXTURE_2D, GetTexID());
 	//gluQuadricTexture(gluNewQuadric(), 1);
@@ -27,11 +30,17 @@ GLvoid CObject::render()
 
 	glDisable(GL_TEXTURE_GEN_S); //enable texture coordinate generation
 	glDisable(GL_TEXTURE_GEN_T);
+	//glDisable(GL_TEXTURE_GEN_R);
+	//glDisable(GL_TEXTURE_GEN_Q);
+	glDisable(GL_TEXTURE_2D);
 
-	mNowAngle += mAngle;
+	if (stop == false)
+		mNowAngle += mAngle;
 
 	if (mNowAngle >= 360.f)
 		mNowAngle = 0.f;
+
+	glGetDoublev(GL_MODELVIEW_MATRIX, mMatrix);
 
 	glPopMatrix();
 }

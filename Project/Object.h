@@ -65,14 +65,16 @@ public:
 	ShapeType GetShapeType() { return mShapeType; }
 	GLdouble GetSize() { return mSize; }
 	GLint GetTexID() { return mTexID; }
+	GLdouble *GetMatrix() { return mMatrix; }
 	int GetObjectNum() { return mObjectNum; }
 
-	GLvoid render();
+	GLvoid render(bool stop);
 
 private:
 	Object3DElement mStartPosition;
 	Object3DElement mPosition;
 	Object3DElement mRotate;
+	GLdouble mMatrix[16];
 	GLfloat mAngle;
 	GLfloat mNowAngle;
 	Object3DElement mColor;
