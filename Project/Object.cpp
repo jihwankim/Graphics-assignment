@@ -1,8 +1,9 @@
 #include "Object.h"
 
-CObject::CObject()
+CObject::CObject(int num)
 : mShapeType(SOLID_SPHERE), mSize(0.f), mAngle(0.f), mNowAngle(0.f)
 {
+	mObjectNum = num;
 }
 CObject::~CObject()
 {
@@ -10,8 +11,6 @@ CObject::~CObject()
 
 GLvoid CObject::render()
 {
-	void(__stdcall *Shape[8])(GLdouble) = { SolidSphere, WireSphere, SolidCube, WireCube, SolidTorus, WireTorus, SolidTeapot, WireTeapot };
-
 	glPushMatrix();
 	glTranslatef(mStartPosition.GetX(), mStartPosition.GetY(), mStartPosition.GetZ());
 

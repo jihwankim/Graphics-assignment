@@ -20,6 +20,8 @@ enum ShapeType
 	WIRE_TEAPOT = 7,
 };
 
+static void(__stdcall *Shape[8])(GLdouble) = { SolidSphere, WireSphere, SolidCube, WireCube, SolidTorus, WireTorus, SolidTeapot, WireTeapot };
+
 class Object3DElement
 {
 public :
@@ -43,7 +45,7 @@ private:
 class CObject
 {
 public:
-	CObject();
+	CObject(int num);
 	~CObject();
 
 	void SetAngle(GLfloat value) { mAngle = value; }
@@ -61,6 +63,7 @@ public:
 	Object3DElement GetColor() { return mColor; }
 	ShapeType GetShapeType() { return mShapeType; }
 	GLdouble GetSize() { return mSize; }
+	int GetObjectNum() { return mObjectNum; }
 
 	GLvoid render();
 
@@ -73,4 +76,5 @@ private:
 	Object3DElement mColor;
 	ShapeType mShapeType;
 	GLdouble mSize;
+	int mObjectNum;
 };
