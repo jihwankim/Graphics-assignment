@@ -12,6 +12,7 @@ void SubMenu();
 void SetupRC();
 void ChangeSize(int w, int h);
 void Draw(GLenum eMode);
+void DrawStatus();
 void RenderScene(void);
 void ContorolKey(int key, int x, int y);
 void TimerFunc(int value);

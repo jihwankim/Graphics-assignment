@@ -18,6 +18,7 @@
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 800
 #define UPDATE_RATE 0.05
+#define SELECT_BUF_SIZE 512
 #define TEXTURE_COUNT 7
 
 static std::list<CObject*> object;
@@ -33,6 +34,8 @@ int ObjectCount = 0;
 
 AUX_RGBImageRec *texRec[TEXTURE_COUNT];
 GLuint texID[TEXTURE_COUNT];
+
+CObject *SelectedObject = nullptr;
 
 double MainMenu;
 double SubMenu1, SubMenu2;
@@ -187,9 +190,11 @@ void Draw(GLenum eMode)
 
 		(*iter).render();
 	}
+	DrawStatus();
 }
 void renderString(float x, float y, void *font, const char *string)
 {
+	glColor3f(255.f, 255.f, 255.f);
 	const char *c;
 	glRasterPos2f(x, y);
 	for (c = string; *c != '\0'; c++) {
@@ -198,11 +203,19 @@ void renderString(float x, float y, void *font, const char *string)
 }
 void DrawStatus()
 {
-	glPushMatrix();
 	glLoadIdentity();
+	//glPushMatrix();
+	
 
-	glColor3f(255.f, 255.f, 255.f);
+	//glColor3f(255.f, 255.f, 255.f);
 	char temp[256];
+
+	sprintf(temp, "Total Object : %d", ObjectCount);
+	renderString(-50.f, -90.f, GLUT_BITMAP_8_BY_13, temp);
+
+	if (SelectedObject != nullptr) sprintf(temp, "Selected Object ID : %d",SelectedObject->GetObjectNum());
+	else sprintf(temp, "Selected Object : NULL");
+	renderString(-50.f, -100.f, GLUT_BITMAP_8_BY_13, temp);
 
 	sprintf(temp, "Selected Shape : ");
 	if (SelectedShapeType == SOLID_CUBE) strcat(temp, "SOLID_CUBE");
@@ -214,17 +227,15 @@ void DrawStatus()
 	else if (SelectedShapeType == SOLID_TEAPOT) strcat(temp, "SOLID_TEAPOT");
 	else if (SelectedShapeType == WIRE_TEAPOT) strcat(temp, "WIRE_TEAPOT");
 
-	//renderString(-100.f, -100.f, GLUT_BITMAP_8_BY_13, temp);
 	renderString(-50.f, -110.f, GLUT_BITMAP_8_BY_13, temp);
 
-	glPopMatrix();
+	//glPopMatrix();
 }
 void RenderScene(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
-
-	DrawStatus();	
+	glLoadIdentity();
 
 	if (minimumZ == 0.f) minimumZ = GetWinZ();
 
@@ -254,13 +265,17 @@ void TimerFunc(int value)
 	glutPostRedisplay();
 	glutTimerFunc(UPDATE_RATE * 1000, TimerFunc, 1);
 }
-
-CObject *SelectedObject = nullptr;
-
-#define SELECT_BUF_SIZE 512
 void ProcessHits(unsigned int uiHits, unsigned int *pBuffer)
 {
-	printf("#### %d\n", pBuffer[3]);
+	//printf("#### %d\n", pBuffer[3]);
+	for (auto& iter : object)
+	{
+		if ((*iter).GetObjectNum() == pBuffer[3])
+		{
+			SelectedObject = iter;
+			return;
+		}
+	}
 }
 void SelectObject(int x, int y)
 {
@@ -363,9 +378,10 @@ GLvoid Mouse(int button, int state, int x, int y)
 		}
 					  break;
 		case FULL :
-			SelectObject(x, y);
+			//SelectObject(x, y);
 			break;
 		}
+		SelectObject(x, y);
 	}
 	glutPostRedisplay();
 }
