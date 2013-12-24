@@ -14,7 +14,7 @@ For the small tutorials its not a big deal but not a good practice in
 larger projects (heap trashing not good). J.M. Doyle : 12 Jan 2003
 ------------------------------------------------------------------*/
 
-AUX_RGBImageRec *auxDIBImageLoad(const wchar_t *FileName)
+AUX_RGBImageRec *auxDIBImageLoad(const char *FileName)
 {
 	return new AUX_RGBImageRec(FileName);
 }
@@ -32,7 +32,7 @@ void AUX_RGBImageRec::convertBGRtoRGB()
 	}
 }
 
-AUX_RGBImageRec::AUX_RGBImageRec(const wchar_t *FileName) : data(NULL), NoErrors(false)
+AUX_RGBImageRec::AUX_RGBImageRec(const char *FileName) : data(NULL), NoErrors(false)
 {
 	loadFile(FileName);
 }
@@ -43,7 +43,7 @@ AUX_RGBImageRec::~AUX_RGBImageRec()
 	data = NULL;
 }
 
-bool AUX_RGBImageRec::loadFile(const wchar_t* Filename)
+bool AUX_RGBImageRec::loadFile(const char* Filename)
 {
 	BITMAPINFO BMInfo;								// need the current OpenGL device contexts in order to make use of windows DIB utilities  
 	const HDC gldc = wglGetCurrentDC();   			// a handle for the current OpenGL Device Contexts

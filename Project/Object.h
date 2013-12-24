@@ -55,6 +55,7 @@ public:
 	void SetColor(GLfloat x, GLfloat y, GLfloat z) { mColor.SetX(x); mColor.SetY(y); mColor.SetZ(z); }
 	void SetShapeType(ShapeType value) { mShapeType = value; }
 	void SetSize(GLdouble value) { mSize = value; }
+	void SetTexID(GLint value) { mTexID = value; }
 
 	GLfloat GetAngle() { return mAngle; }
 	Object3DElement GetStartPosition() { return mStartPosition; }
@@ -63,6 +64,7 @@ public:
 	Object3DElement GetColor() { return mColor; }
 	ShapeType GetShapeType() { return mShapeType; }
 	GLdouble GetSize() { return mSize; }
+	GLint GetTexID() { return mTexID; }
 	int GetObjectNum() { return mObjectNum; }
 
 	GLvoid render();
@@ -76,5 +78,6 @@ private:
 	Object3DElement mColor;
 	ShapeType mShapeType;
 	GLdouble mSize;
+	GLint mTexID;
 	int mObjectNum;
 };

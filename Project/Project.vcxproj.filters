@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Object.cpp">
       <Filter>Object</Filter>
     </ClCompile>
@@ -13,12 +12,13 @@
       <Filter>Object</Filter>
     </ClCompile>
     <ClCompile Include="bmp.cpp">
-      <Filter>Sample</Filter>
+      <Filter>Include</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Include</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
     <ClInclude Include="Object.h">
       <Filter>Object</Filter>
     </ClInclude>
@@ -29,9 +29,15 @@
       <Filter>Object</Filter>
     </ClInclude>
     <ClInclude Include="bmp.h">
-      <Filter>Sample</Filter>
+      <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="Project.h" />
+    <ClInclude Include="targetver.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -43,8 +49,11 @@
     <Filter Include="RenderFunction">
       <UniqueIdentifier>{5a9366c5-71d6-4fd8-8e28-2f8374187973}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Sample">
+    <Filter Include="Include">
       <UniqueIdentifier>{72b89aec-9763-49d8-a42d-305b7607f919}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{d718bdd9-1fd2-4c56-ac3b-6f734eab159d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
