@@ -148,31 +148,7 @@ void SetupRC()
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glEnable(GL_TEXTURE_2D);
-	//타겟, 레벨, 내부포맷, 너비, 높이, 테두리, 포맷, 타입, 데이터
-	//타겟인자는 1D, 2D, 3D 사용
-	//레벨은 밉맵 레벨, 밉맵이 아니면 0
-	//내부포맷은 텍셀에 대한 저장 방식을 결정
-	//너비, 높이 는 로딩될 텍스쳐의 차원 지정, 2의 제곱수여야 함
-	//테두리 인자는 텍스처의 테두리 두께를 지정
-	//이하 3개는 텍셀 포맷, 패당 포맷 표현 데이터 타입, 타겟 주소값을 의미한다.
-
-	/*
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-	//텍스쳐를 붙이는 방법 설정
-	//target, pname, param
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//텍스쳐의 확대 및 축소에 따라 어떤 부분에서 화소를 가져올 것인가 선택하는 것
-	//그런데 텍스쳐 범위를 넘으면 어디서 이미지를 가져와야 되나?
-	//S는 가로 범위가 넘으면 반복해서 붙여라
-	//T는 세로 범위가 넘으면 반복해서 붙여라
-
-	glEnable(GL_TEXTURE_2D);
-	*/
-
+	
 	// Front material ambient and diffuse colors track glColor
 	glColorMaterial(GL_FRONT,GL_AMBIENT_AND_DIFFUSE);
 	glClearColor(0.0f, 0.0f, 0.0f,1.0f);
@@ -212,11 +188,43 @@ void Draw(GLenum eMode)
 		(*iter).render();
 	}
 }
+void renderString(float x, float y, void *font, const char *string)
+{
+	const char *c;
+	glRasterPos2f(x, y);
+	for (c = string; *c != '\0'; c++) {
+		glutBitmapCharacter(font, *c);
+	}
+}
+void DrawStatus()
+{
+	glPushMatrix();
+	glLoadIdentity();
+
+	glColor3f(255.f, 255.f, 255.f);
+	char temp[256];
+
+	sprintf(temp, "Selected Shape : ");
+	if (SelectedShapeType == SOLID_CUBE) strcat(temp, "SOLID_CUBE");
+	else if (SelectedShapeType == WIRE_CUBE) strcat(temp, "WIRE_CUBE");
+	else if (SelectedShapeType == SOLID_SPHERE) strcat(temp, "SOLID_SPHERE");
+	else if (SelectedShapeType == WIRE_SPHERE) strcat(temp, "WIRE_SPHERE");
+	else if (SelectedShapeType == SOLID_TORUS) strcat(temp, "SOLID_TORUS");
+	else if (SelectedShapeType == WIRE_TORUS) strcat(temp, "WIRE_TORUS");
+	else if (SelectedShapeType == SOLID_TEAPOT) strcat(temp, "SOLID_TEAPOT");
+	else if (SelectedShapeType == WIRE_TEAPOT) strcat(temp, "WIRE_TEAPOT");
+
+	//renderString(-100.f, -100.f, GLUT_BITMAP_8_BY_13, temp);
+	renderString(-50.f, -110.f, GLUT_BITMAP_8_BY_13, temp);
+
+	glPopMatrix();
+}
 void RenderScene(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+
+	DrawStatus();	
 
 	if (minimumZ == 0.f) minimumZ = GetWinZ();
 
