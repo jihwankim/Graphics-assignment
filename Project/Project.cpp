@@ -18,7 +18,7 @@
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 800
 #define UPDATE_RATE 0.05
-#define TEXTURE_COUNT 1
+#define TEXTURE_COUNT 7
 
 static std::list<CObject*> object;
 static std::list<CObject*> light;
@@ -31,7 +31,7 @@ GLfloat minimumZ = 0.f;
 ShapeType SelectedShapeType = ShapeType::SOLID_CUBE;
 int ObjectCount = 0;
 
-AUX_RGBImageRec * texRec;
+AUX_RGBImageRec *texRec[TEXTURE_COUNT];
 GLuint texID[TEXTURE_COUNT];
 
 double MainMenu;
@@ -131,15 +131,23 @@ void SetupRC()
 	glEnable(GL_COLOR_MATERIAL);// Enable Material color tracking
 
 	// Load Texture
+	glGenTextures(TEXTURE_COUNT, &texID[0]);
 	for (int i = 0; i < TEXTURE_COUNT; ++i)
 	{
 		char buf[256];
 		sprintf(buf, "Resource/%d.bmp", i);
-		texRec = auxDIBImageLoad(buf);
-		glGenTextures(1, &texID[i]);
+		texRec[i] = auxDIBImageLoad(buf);
+		
 		glBindTexture(GL_TEXTURE_2D, texID[i]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texRec->sizeX, texRec->sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, texRec->data);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texRec[i]->sizeX, texRec[i]->sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, texRec[i]->data);
 	}
+
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glEnable(GL_TEXTURE_2D);
 	//타겟, 레벨, 내부포맷, 너비, 높이, 테두리, 포맷, 타입, 데이터
 	//타겟인자는 1D, 2D, 3D 사용
 	//레벨은 밉맵 레벨, 밉맵이 아니면 0
@@ -200,22 +208,6 @@ void Draw(GLenum eMode)
 	for (auto& iter : object)
 	{
 		if (eMode == GL_SELECT) glLoadName((*iter).GetObjectNum());
-
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, (*iter).GetTexID());
-		//타겟, 레벨, 내부포맷, 너비, 높이, 테두리, 포맷, 타입, 데이터
-		//타겟인자는 1D, 2D, 3D 사용
-		//레벨은 밉맵 레벨, 밉맵이 아니면 0
-		//내부포맷은 텍셀에 대한 저장 방식을 결정
-		//너비, 높이 는 로딩될 텍스쳐의 차원 지정, 2의 제곱수여야 함
-		//테두리 인자는 텍스처의 테두리 두께를 지정
-		//이하 3개는 텍셀 포맷, 패당 포맷 표현 데이터 타입, 타겟 주소값을 의미한다.
-
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 		(*iter).render();
 	}
@@ -344,8 +336,7 @@ GLvoid Mouse(int button, int state, int x, int y)
 					  srand(GetTickCount());
 
 					  temp->SetAngle(0.005f * (rand() % 900));
-					  //temp->SetColor(rand() % 256, rand() % 256, rand() % 256);
-					  temp->SetColor(255, 255, 255);
+					  temp->SetColor(rand() % 256 + 10, rand() % 256 + 10, rand() % 256 + 10);
 					  
 					  temp->SetStartPosition(0.f, 0.f, 0.f);
 					  //temp->SetPosition((GLfloat)x - width / 2, (GLfloat)y - height / 2, 0.f);
@@ -353,10 +344,9 @@ GLvoid Mouse(int button, int state, int x, int y)
 					  temp->SetPosition(pos.GetX(), pos.GetY(), pos.GetZ());
 
 					  temp->SetRotate(0.1f * (rand() % 100) * UPDATE_RATE, 0.1f * (rand() % 100) * UPDATE_RATE, 0.1f * (rand() % 100) * UPDATE_RATE);
-					  //temp->SetShapeType((ShapeType)(rand() % 4));
 					  temp->SetShapeType(SelectedShapeType);
 					  temp->SetSize(rand() % 20 + 10.f);
-					  temp->SetTexID(rand() % TEXTURE_COUNT);
+					  temp->SetTexID(texID[rand() % TEXTURE_COUNT]);
 
 					  printf("Object Click : %d/%d\n", x, y);
 					  printf("World Click  : %f/%f/%f\n", pos.GetX(), pos.GetY(), pos.GetZ());

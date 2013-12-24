@@ -96,6 +96,16 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resource\0.bmp" />
+    <Image Include="Resource\1.bmp" />
+    <Image Include="Resource\2.bmp" />
+    <Image Include="Resource\3.bmp" />
+    <Image Include="Resource\4.bmp" />
+    <Image Include="Resource\5.bmp" />
+    <Image Include="Resource\6.bmp" />
+    <Image Include="Resource\7.bmp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

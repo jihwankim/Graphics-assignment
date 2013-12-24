@@ -56,4 +56,30 @@
       <UniqueIdentifier>{d718bdd9-1fd2-4c56-ac3b-6f734eab159d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resource\0.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="Resource\1.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="Resource\2.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="Resource\3.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="Resource\4.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="Resource\5.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="Resource\6.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="Resource\7.bmp">
+      <Filter>Resource</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

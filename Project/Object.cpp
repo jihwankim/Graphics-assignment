@@ -12,6 +12,11 @@ CObject::~CObject()
 GLvoid CObject::render()
 {
 	glPushMatrix();
+	glEnable(GL_TEXTURE_GEN_S); //enable texture coordinate generation
+	glEnable(GL_TEXTURE_GEN_T);
+
+	glBindTexture(GL_TEXTURE_2D, GetTexID());
+	//gluQuadricTexture(gluNewQuadric(), 1);
 	glTranslatef(mStartPosition.GetX(), mStartPosition.GetY(), mStartPosition.GetZ());
 
 	glRotatef(mNowAngle, mRotate.GetX(), mRotate.GetY(), mRotate.GetZ());
@@ -19,7 +24,10 @@ GLvoid CObject::render()
 
 	glColor3ub(mColor.GetX(), mColor.GetY(), mColor.GetZ());
 	Shape[mShapeType](mSize);
-	
+
+	glDisable(GL_TEXTURE_GEN_S); //enable texture coordinate generation
+	glDisable(GL_TEXTURE_GEN_T);
+
 	mNowAngle += mAngle;
 
 	if (mNowAngle >= 360.f)
